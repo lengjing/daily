@@ -1,13 +1,8 @@
 import * as commander from "commander";
 import colors from "colors";
 import updater from "update-notifier";
-// import packageJson from '../package.json' with {type: 'json'};
-
-const { default: packageJson } = await import("../package.json", {
-  assert: {
-    type: "json",
-  },
-});
+import { config, deploy } from "./commands";
+const packageJson = require("../package.json");
 
 const program = new commander.Command(packageJson.name);
 
@@ -38,11 +33,14 @@ program
   });
 
 program
-  .command("config")
-  .description("configure daily options")
-  .action(function (cmd, options) {
-    require("./commands/config")(options);
+  .command("config [value]")
+  .description("inspect and modify daily config")
+  .action(function (value, options) {
+    config(value, options);
   })
+  .option("-g, --get <path>", "get value from option")
+  .option("-s, --set <path> <value>", "set option value")
+  .option("-o, --output", "output config")
   .on("--help", () => {
     console.log(`
      Get and set config.
@@ -50,7 +48,6 @@ program
      For example:
      ${colors.red("$")} daily config set jenkins.username 'xxx'
      ${colors.red("$")} daily config set jenkins.password 'xxx'
-
 `);
   });
 
